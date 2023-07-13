@@ -1,0 +1,167 @@
+/* ページ全体のスタイル */
+body {
+    font-family: Arial, sans-serif;
+     background-color: #87cefa;
+    font-size: 18px;
+}
+
+/* ゲームのコンテンツを表示するコンテナのスタイル */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+
+/* ゲームのカードのスタイル */
+.card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.8); /* 薄い白色の背景 */
+}
+
+.card h2 {
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+/* 投票用チップのスタイル */
+.vote-chip {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    cursor: move;
+    background-color: #ff5e62;
+    border-radius: 50%;
+}
+
+/* 投票用チップがドラッグされたときのスタイル */
+.vote-chip.dragging {
+    opacity: 0.5;
+    box-shadow: 0 0 10px rgba(255, 94, 98, 0.2);
+}
+
+/* 投票用チップのドロップ先のスタイル */
+.dropzone {
+    border: 2px dashed #ff5e62;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.dropzone p {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.dropzone .vote-chip {
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+#act-card-image {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.8); /* 薄い白色の背景 */
+}
+h2 {
+    background-color: rgba(255, 255, 255, 0.8); /* 薄い白色の背景 */
+
+}
+
+#act-card {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #ff9966;
+    border: none;
+    color: white;
+    padding: 20px 40px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+
+#fixed-container {
+  display: flex;
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  z-index: 1000;
+  align-items: flex-start;
+}
+
+#jitsi-meet-container {
+  width: 600px;
+  height: 20px;
+  margin-right: 0px; /* Jitsi Meetコンテナとテーマ表示を区切るためのマージン */
+}
+
+.fixed-theme-display {
+  background-color: transparent;
+  padding: 20px;
+  border-radius: 5px;
+}
+.container {
+  margin-right: 800px; /* Jitsi Meetコンテナと固定表示テーマの合計の横幅に合わせて右マージンを設定 */
+  padding-top: 20px; /* 余白を追加してコンテンツが上端と重ならないようにする */
+}
+
+
+
+#jaas-container {
+  width: 600px;
+  height: 700px;
+  margin-right: 0px; /* Jitsi Meetコンテナとテーマ表示を区切るためのマージン */
+}
+
+
+/* カウントダウンのスタイル */
+#countdown {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    z-index: 1000;
+    display: none;
+}
+
+#image-select {
+    width: 200px;  /* 幅を200pxに設定 */
+    height: 40px;  /* 高さを40pxに設定 */
+    font-size: 16px;  /* フォントサイズを16pxに設定 */
+    background-color: #87cefa;  /* 背景色を淡い青色に設定 */
+    color: white;  /* 文字色を白色に設定 */
+}

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Voice Recorder</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://meet.jit.si/external_api.js"></script>
+  <script src='https://8x8.vc/vpaas-magic-cookie-c48ab80eb9d84a3983db3c3ad5244004/external_api.js' async></script>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+  $(document).ready(function () {
+    function fetchTheme(imageId) {
+      $.getJSON(`/experiment/haa-game/app/api/get_theme?image_id=${imageId}`, function(data) {
+        $('#act-card-theme').text(data.theme);
+      });
+    }
+
+    function setSelfChoiceOptions(imageId) {
+      fetch(`https://ccca-lab.net/experiment/haa-game/app/api/get_self_choice?image_id=${imageId}`)
+      .then(response => response.json())
+      .then(data => {
+        var selfChoiceSelect = document.getElementById('your-situation');
+        selfChoiceSelect.innerHTML = '';  // Clear existing options
+        for (let choice of data.choices) {
+          let option = document.createElement('option');
+          option.text = choice;
+          selfChoiceSelect.add(option);
+        }
+      });
+
+    }
+
+    function setVoteChoiceOptions(imageId) {
+      fetch(`https://ccca-lab.net/experiment/haa-game/app/api/get_vote_choices?image_id=${imageId}`)
+      .then(response => response.json())
+      .then(data => {
+        for (let player = 1; player <= 8; player++) { // Assuming there are 8 players
+          var voteChoiceSelect = document.getElementById(`theme-selector${player}`);
+          voteChoiceSelect.innerHTML = '';  // Clear existing options
+          for (let choice of data.choices) {
+            let option = document.createElement('option');
+          option.text = choice;
+          voteChoiceSelect.add(option);
+        }
+      }
+    });
+    }
+
+    $(document).ready(function () {
+      // ページの読み込み時に初期画像のテーマと自分のお題、投票用チップのオプションを取得
+      const initialImageId = $('#image-select').val();
+      fetchTheme(initialImageId);
+      setSelfChoiceOptions(initialImageId);
+      setVoteChoiceOptions(initialImageId);
+
+      // 画像の選択が変更された時にテーマと自分のお題、投票用チップのオプションを更新
+      $('#image-select').change(function () {
+        const selectedImageId = $(this).val();
+        $('#act-card-image').attr('src', '{{ url_for('static', filename='your_image') }}' + selectedImageId + '.jpg');
+        fetchTheme(selectedImageId);
+        setSelfChoiceOptions(selectedImageId);
+        setVoteChoiceOptions(selectedImageId);
+      });
+    });
+            // formのsubmitイベントを利用して、送信を行う
+            $('#submit-btn').click(async function () {
+              var formData = new FormData();
+              var selectedOptions = {
+                "image_id": $("#image-select").val(),  // "selected_image" を "image_id" に変更
+                "username": $("#username").val(),
+                "participation_count": $("#participation-count").val(),
+                "theme": $("#act-card-theme").text()
+              };
+              // 送信直前の各値をコンソールに出力
+
+              for (const key in selectedOptions) {
+                console.log(key, selectedOptions[key]);
+                if (!selectedOptions[key] || selectedOptions[key] === '') {
+                  alert(key + ' is empty!');
+                  return;  // If the field is empty, stop execution
+                }
+                formData.append(key, selectedOptions[key]);
+              }
+
+              for (var i = 1; i <= 8; i++) {
+                selectedOptions["vote_chip_" + i] = $("#theme-selector" + i).val();
+                if (!selectedOptions["vote_chip_" + i] || selectedOptions["vote_chip_" + i] === '') {
+                  alert("vote_chip_" + i + " is empty!");
+                  return;  // If the field is empty, stop execution
+                }
+                formData.append("vote_chip_" + i, selectedOptions["vote_chip_" + i]);
+              }
+
+              // 録画したビデオデータを取得
+              let blob = new Blob(recordedChunks, { type: "video/mp4" });
+              formData.append('video', blob, 'video_filename.mp4'); // 'video_filename.mp4' を適切なファイル名に置き換えてください
+
+              $.ajax({
+                url: '/experiment/haa-game/app/api/submit_vote',
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function () {
+                  var message = document.createElement('div');
+                  message.className = 'fullscreen-message';
+                  message.textContent = '提出されました，それでは解答を話し合い答え合わせを行ってください';
+                  document.body.appendChild(message);
+
+                  // 5秒後にメッセージを削除
+                  setTimeout(function () {
+                    document.body.removeChild(message);
+                  }, 5000);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                  alert("エラーが発生しました: " + textStatus + " " + errorThrown);
+                }
+              });
+
+
+
+
+
+            });
+          });
+          window.onload = () => {
+            const api = new JitsiMeetExternalAPI("8x8.vc", {
+              roomName: "vpaas-magic-cookie-c48ab80eb9d84a3983db3c3ad5244004/ccca_haagame",
+              parentNode: document.querySelector('#jaas-container'),
+          // JWTトークンをコメントアウトしました
+          // jwt: "YOUR_JWT_TOKEN_HERE"
+        });
+      }
+</script>
+
+
+  </script>
+</head>
+
+
+
+
+<body>
+
+
+  <div class="container">
+
+
+      <h1>アクトカード</h1>
+      <video id="live-video" autoplay muted style="display: none;"></video>
+      <p>ユーザー名を入力してください。</p>
+      <input type="text" id="username" placeholder="ユーザー名">
+      <p>何回目の参加ですか？</p>
+      <input type="number" id="participation-count" min="1" placeholder="参加回数">
+
+      <div id="fixed-container">
+        <div class="fixed-theme-display">
+          <h2>お題カード</h2>
+          <div id="act-card"></div>
+          <img id="act-card-image" src="{{ url_for('static', filename='your_image1.jpg') }}" alt="お題カード画像" width="200">
+        </div>
+        <div class="fixed-theme-display">
+          <body><div id="jaas-container" /></body>
+
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <h2>あなたが演技するお題</h2>
+      <p id="act-card-theme"></p>
+      <br>
+      <select id="image-select">
+        <option value="1">画像1</option>
+        <option value="2">画像2</option>
+        <option value="3">画像3</option>
+        <option value="4">画像4</option>
+      </select>
+      <br>
+
+
+
+
+
+
+
+
+
+      <h1>Voice Recorder</h1>
+      <button id="startButton">Start Recording</button>
+      <br>
+      <button id="stopButton" disabled>Stop Recording</button>
+      <span id="recording-indicator" style="display: none; color: red;">録画中...</span>
+      <br>
+      <button id="playButton" disabled autoplay muted style="display: none;">Play Recording</button>
+      <br>
+      <p id="countdown"></p>
+
+      <video id="recorded-video"controls autoplay muted style="display: none;"></video>
+
+      <script>
+
+      let startButton = document.getElementById("startButton");
+     let stopButton = document.getElementById("stopButton");
+     let playButton = document.getElementById("playButton");
+
+     let mediaRecorder;
+     let recordedChunks = [];
+     let blob;
+
+     const handleDataAvailable = (event) => {
+       recordedChunks.push(event.data);
+     };
+
+     const handleStop = async (event) => {
+
+
+       blob = new Blob(recordedChunks, {
+         type: "video/mp4"
+       });
+
+
+       const video = document.getElementById("recorded-video");
+       video.src = URL.createObjectURL(blob);
+       video.controls = true;
+       video.play();  // 録画が停止した後にビデオを自動再生
+
+       // FormDataを作成し、ビデオを追加
+       //let formData = new FormData();
+      // formData.append(blob,);
+
+
+       // 追加のフィールドをここに追加します。例えば、usernameやyour_situationなど
+
+       // サーバに送信
+      // const response = await fetch('/submit_vote', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+
+      // if (response.ok) {
+      //   alert("提出されました！");
+      // } else {
+      //   alert("エラーが発生しました: " + response.status);
+      // }
+
+       //const responseData = await response.json();
+// 必要に応じてresponseDataを使用して処理を行います
+       // responseデータを使って何かする...
+     };
+
+     const startRecording = async () => {
+       // カウントダウン表示
+       const countdownElement = document.getElementById('countdown');
+       countdownElement.style.display = 'flex';  // カウントダウンを表示
+       for (let i = 3; i > 0; i--) {
+         countdownElement.textContent = i;
+         await new Promise(resolve => setTimeout(resolve, 1000));
+       }
+       countdownElement.textContent = '';
+       countdownElement.style.display = 'none';  // カウントダウンを非表示
+
+
+       try {
+         const stream = await navigator.mediaDevices.getUserMedia({
+           audio: true,
+           video: true
+         });
+
+         const video = document.getElementById("live-video"); // ライブビデオ表示のための新規要素
+         video.srcObject = stream;  // ビデオストリームをビデオ要素に接続
+         video.onloadedmetadata = (e) => {
+           video.play();
+         };
+
+         let options;
+         const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+         const isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+
+         if (isChrome) {
+           options = { mimeType: "video/webm" };
+         } else if (isSafari) {
+           options = { mimeType: "video/mp4" };
+         } else {
+           // 他のブラウザに対するデフォルト設定
+           options = { mimeType: "video/webm" };
+         }
+
+         mediaRecorder = new MediaRecorder(stream, options);
+         mediaRecorder.addEventListener("dataavailable", handleDataAvailable);
+         mediaRecorder.addEventListener("stop", handleStop);
+         document.getElementById("recording-indicator").style.display = "inline";
+         recordedChunks = [];
+         mediaRecorder.start();
+         startButton.disabled = true;
+         stopButton.disabled = false;
+       } catch (err) {
+         console.error(err);
+       }
+     };
+
+     const stopRecording = () => {
+       mediaRecorder.stop();
+       alert("録画を停止しました");
+       startButton.disabled = false;
+       stopButton.disabled = true;
+       playButton.disabled = false;
+       document.getElementById("recording-indicator").style.display = "none";
+     }
+
+     const playRecording = () => {
+       const video = document.getElementById("recorded-video");
+       video.play();
+     };
+
+     startButton.addEventListener("click", startRecording);
+
+     stopButton.addEventListener("click", stopRecording);
+
+     playButton.addEventListener("click", playRecording);
+
+
+
+
+
+
+
+
+
+    </script>
+  </script>
+
+
+
+
+
+
+
+
+
+        <h2>投票用チップ</h2>
+        <p>あなたのお題を選択してください。</p>
+        <select id="your-situation"></select>
+
+
+        {% for player in range(1, 9) %}
+        <p>{{ player }}人目のプレイヤーの演技はA~Hだと思います。</p>
+        <select id="theme-selector{{ player }}"></select>
+        {% endfor %}
+
+        <br>
+        <button id="submit-btn">提出</button>
+
+
+
+
+        <!-- CSVファイル一覧のリンクを追加 -->
+
+    </div>
+
+
+</body>
+</html>
