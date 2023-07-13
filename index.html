@@ -132,8 +132,7 @@
             const api = new JitsiMeetExternalAPI("8x8.vc", {
               roomName: "vpaas-magic-cookie-c48ab80eb9d84a3983db3c3ad5244004/ccca_haagame",
               parentNode: document.querySelector('#jaas-container'),
-          // JWTトークンをコメントアウトしました
-          // jwt: "YOUR_JWT_TOKEN_HERE"
+         
         });
       }
 </script>
@@ -232,29 +231,7 @@
        video.controls = true;
        video.play();  // 録画が停止した後にビデオを自動再生
 
-       // FormDataを作成し、ビデオを追加
-       //let formData = new FormData();
-      // formData.append(blob,);
-
-
-       // 追加のフィールドをここに追加します。例えば、usernameやyour_situationなど
-
-       // サーバに送信
-      // const response = await fetch('/submit_vote', {
-      //   method: 'POST',
-      //   body: formData
-      // });
-
-      // if (response.ok) {
-      //   alert("提出されました！");
-      // } else {
-      //   alert("エラーが発生しました: " + response.status);
-      // }
-
-       //const responseData = await response.json();
-// 必要に応じてresponseDataを使用して処理を行います
-       // responseデータを使って何かする...
-     };
+      
 
      const startRecording = async () => {
        // カウントダウン表示
